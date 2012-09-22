@@ -3,9 +3,8 @@
 <title>hakase dot org</title>
 
 <style>
-  html {
-    min-width: 450px;
-  }
+  html { min-width: 450px; }
+  html, body { margin: 0; padding: 0; }
 
   img { display: block; }
 
@@ -76,7 +75,7 @@
   </div>
 </div>
 
-<canvas id="hakase">Hakase dot org</canvas>
+<canvas id="hakase" height="119">Hakase dot org</canvas>
 
 <script>
 (function () {
@@ -127,13 +126,6 @@ window.addEventListener('load', function () {
       ctx = hakase.getContext('2d'),
       // swapping out the DOM img elements creates artifacts that don't
       // appear when just redrawing to the same canvas. Weird.
-      draw = function (img) {
-        // resetting the canvas width/height has the added effect of clearing it
-        hakase.width = img.width;
-        hakase.height = img.height;
-
-        ctx.drawImage(img, 0, 0);
-      },
       turn = {
         left: images('tleft'),
         right: images('tright')
@@ -142,15 +134,25 @@ window.addEventListener('load', function () {
         left: images('wleft'),
         right: images('wright')
       },
+
       x         = -250, // cutely walk into the screen from stage left
       walking   = true,
       direction = "right",
       anim      = walk[direction],
       frames    = anim.length,
-      frame     = 0;
+      frame     = 0,
 
-  hakase.style.left = x + 'px';
-  draw(anim[frame]);
+      draw = function () {
+        // resetting the canvas width has the added effect of clearing it
+        hakase.width = window.innerWidth;
+
+        // not all the images are the same height, and it's a goddamn hassle to
+        // either figure out how to script them to the same height, or to do it
+        // manually with GIMP's god-awful interface
+        ctx.drawImage(anim[frame], x, 119 - anim[frame].height);
+      };
+
+  draw();
 
   // animation loop
   setTimeout(function tick () {
@@ -190,11 +192,7 @@ window.addEventListener('load', function () {
       }
     }
 
-    hakase.style.left = x + 'px';
-
-    draw(anim[frame]);
-
-
+    draw();
 
     if (document.hidden) {
       // continue once we're no longer hidden
