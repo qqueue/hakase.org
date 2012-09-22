@@ -3,13 +3,14 @@
 <title>hakase dot org</title>
 
 <style>
-  /* TODO mobile shit, min-width */
+  html {
+    min-width: 450px;
+  }
 
   img { display: block; }
 
   #hakase {
     position: absolute;
-    left: 0;
     bottom: 0;
   }
 
@@ -75,89 +76,135 @@
   </div>
 </div>
 
-<div id="hakase"></div>
+<canvas id="hakase">Hakase dot org</canvas>
 
 <script>
 (function () {
 "use strict";
 
-// utilities
-window.$ = function (id) { return document.getElementById(id); }
-var arrayOf = function (it) { return Array.prototype.slice.call(it); }
+// page visibility API polyfill
+if (typeof document.hidden !== "undefined") {
+  (function () {
+    var hidden, visibilityChange;
+    if (typeof document.mozHidden !== "undefined") {
+      hidden = "mozHidden";
+      visibilityChange = "mozvisibilitychange";
+    } else if (typeof document.msHidden !== "undefined") {
+      hidden = "msHidden";
+      visibilityChange = "msvisibilitychange";
+    } else if (typeof document.webkitHidden !== "undefined") {
+      hidden = "webkitHidden";
+      visibilityChange = "webkitvisibilitychange";
+    }
+
+    // set the real document.hidden property, and dispatch the polyfilled event
+    document.addEventListener(visibilityChange, function () {
+      document.hidden = document[hidden];
+      document.dispatchEvent(new CustomEvent("visibilitychange"));
+    });
+  })();
+}
+
+// utility to get the asset's children as a regualr array of elements
+function images(id) {
+  return Array.prototype.slice.call(document.getElementById(id).children);
+}
 
 // The parts of the animation overlap slightly, so this is the true width
 // to shift the container by when moving
 var TURN_WIDTH_LEFT = 55,
     TURN_WIDTH_RIGHT = 170,
     WALK_LEFT_START = 266,
-    WALK_RIGHT_START = 200,
+    WALK_RIGHT_START = 150,
     WALK_WIDTH = {
-      left: [-27, -32, -19, -22, -30],
-      right: [27, 32, 19, 22, 30]
+      left: [-27, -32, -19, -22, -25],
+      right: [27, 32, 19, 22, 25]
     };
 
 window.addEventListener('load', function () {
 
-  var hakase = $('hakase'),
+  var hakase = document.getElementById('hakase'),
+      ctx = hakase.getContext('2d'),
+      // swapping out the DOM img elements creates artifacts that don't
+      // appear when just redrawing to the same canvas. Weird.
+      draw = function (img) {
+        // resetting the canvas width/height has the added effect of clearing it
+        hakase.width = img.width;
+        hakase.height = img.height;
+
+        ctx.drawImage(img, 0, 0);
+      },
       turn = {
-        left: arrayOf($('tleft').children),
-        right: arrayOf($('tright').children)
+        left: images('tleft'),
+        right: images('tright')
       },
       walk = {
-        left: arrayOf($('wleft').children),
-        right: arrayOf($('wright').children)
+        left: images('wleft'),
+        right: images('wright')
       },
-      x         = -10,
+      x         = -250, // cutely walk into the screen from stage left
       walking   = true,
       direction = "right",
       anim      = walk[direction],
       frames    = anim.length,
       frame     = 0;
 
-hakase.appendChild(anim[frame]);
-
-setTimeout(function tick () {
-  ++frame;
-
-  if (walking) {
-    frame = frame % frames;
-
-    x += WALK_WIDTH[direction][frame];
-
-    if ( direction === "right" && (window.innerWidth - x) < TURN_WIDTH_RIGHT ||
-         direction === "left" && x < TURN_WIDTH_LEFT ) {
-
-      walking = false;
-      if (direction === "right") {
-        direction = "left";
-        x = window.innerWidth - 266; // width of actual turning anim
-      } else { // left
-        direction = "right";
-        x = 0;
-      }
-
-      anim = turn[direction];
-      frames = anim.length;
-      frame = 0;
-    }
-  } else { // turning
-    if (frame >= frames) {
-      walking = true;
-      anim = walk[direction];
-      frames = anim.length;
-      frame = 0;
-
-      x = direction === "right" ?
-        WALK_RIGHT_START :
-        window.innerWidth - WALK_LEFT_START;
-    }
-  }
-
   hakase.style.left = x + 'px';
-  hakase.replaceChild(anim[frame], hakase.firstChild);
+  draw(anim[frame]);
 
-  setTimeout(tick, 120);
-}, 120);
+  // animation loop
+  setTimeout(function tick () {
+    ++frame;
+
+    if (walking) {
+      frame = frame % frames;
+
+      x += WALK_WIDTH[direction][frame];
+
+      if ( direction === "right" && (window.innerWidth - x) < TURN_WIDTH_RIGHT ||
+           direction === "left" && x < TURN_WIDTH_LEFT ) {
+
+        walking = false;
+        if (direction === "right") {
+          direction = "left";
+          x = window.innerWidth - 266; // width of actual turning anim
+        } else { // left
+          direction = "right";
+          x = 0;
+        }
+
+        anim = turn[direction];
+        frames = anim.length;
+        frame = 0;
+      }
+    } else { // turning
+      if (frame >= frames) {
+        walking = true;
+        anim = walk[direction];
+        frames = anim.length;
+        frame = 0;
+
+        x = direction === "right" ?
+          WALK_RIGHT_START :
+          window.innerWidth - WALK_LEFT_START;
+      }
+    }
+
+    hakase.style.left = x + 'px';
+
+    draw(anim[frame]);
+
+
+
+    if (document.hidden) {
+      // continue once we're no longer hidden
+      document.addEventListener("visibilitychange", function () {
+        setTimeout(tick, 120);
+      });
+    } else {
+      setTimeout(tick, 120);
+    }
+  }, 120);
 
 });
 })();
