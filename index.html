@@ -1,11 +1,15 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+
 <meta charset="utf-8">
+
 <title>hakase.org</title>
 <meta name="description" content="Because it's cute!">
 
 <link rel="icon" href="favicon.ico">
 
-<link href='http://fonts.googleapis.com/css?family=Droid+Serif:700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Serif:400,400italic,700' rel='stylesheet' type='text/css'>
 
 <style>
   html {
@@ -16,14 +20,17 @@
 
   html, body, h1 { margin: 0; padding: 0; }
 
-  #title {
+  body {
     font-family: 'Droid Serif', serif;
+  }
+
+  #title {
     font-weight: 700;
     font-size: 150px;
     text-align: center;
 
     color: white;
-    text-shadow: 3px 3px 0 black, 0 0 100px #999999, 10px 10px 15px #AAAAAA;
+    text-shadow: 3px 3px 0 black, 0 0 100px #999, 10px 10px 15px #aaa;
 
     margin: auto;
     position: absolute;
@@ -33,14 +40,160 @@
     height: 150px;
   }
 
+  #nav {
+    margin: 0;
+    padding: 0 5px 0 5px;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    background: #222;
+    border-bottom-left-radius: 5px;
+
+    text-align: right;
+
+    z-index: 11;
+  }
+
+  #nav li {
+    display: inline;
+    margin: 0;
+    padding: 0;
+  }
+
+  #nav a {
+    display: inline-block;
+    height: 100%;
+    padding: 0.5em;
+    margin: 0;
+
+    color: #ccc;
+    text-decoration: none;
+    letter-spacing: 0.08em;
+  }
+
+  #nav a:hover {
+    color: white;
+  }
+
   #hakase {
     position: absolute;
     bottom: 0;
   }
+
+  section {
+    visibility: hidden;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+
+    width: 100%;
+    min-width: 320px;
+    height: 50%;
+
+    z-index: 100;
+
+
+    opacity: 0;
+
+    pointer-events: none;
+  }
+
+  section > div {
+    pointer-events: all; /* let return click through the sides */
+
+    margin: 0 auto;
+    width: 50%;
+    min-width: 320px;
+    height: 100%;
+    padding: 2em;
+
+    box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -o-box-sizing: border-box;
+
+    overflow-y: auto;
+    background-color: rgba(240, 240, 240, 0.98);
+    box-shadow: 0 0 10px rgba(240, 240, 240, 0.98),
+                0 0 15px rgba(240, 240, 240, 0.98),
+                0 0 20px rgba(240, 240, 240, 0.98);
+    border-radius: 10px;
+  }
+
+  #return {
+    opacity: 0;
+
+    visibility: hidden;
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+
+    z-index: 10;
+    background-color: rgba(0,0,0,0.15);
+  }
+
+  /* really clever way to click out of lightboxes, if I do say so myself */
+  section:target, section:target ~ #return {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  section, #return {
+    transition: 1s;
+    -moz-transition: 1s;
+    -ms-transition: 1s;
+    -webkit-transition: 1s;
+    -o-transition: 1s;
+  }
+
+  p {
+    line-height: 1.6em; /* TODO actual vertical rhythm */
+  }
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+</head>
+<body>
+
 <h1 id="title">hakase.org</h1>
+
+<ul id="nav">
+  <li><a href="#news">News</a></li><li><a href="#projects">Projects</a></li><li><a href="#about">About</a></li>
+</ul>
+
+<section id="news">
+  <div>
+    <h1>News</h1>
+    <p>Expect cool things!
+  </div>
+</section>
+
+<section id="projects">
+  <div>
+    <h1>Projects</h1>
+    <p>Nothing yet!
+  </div>
+</section>
+
+<section id="about">
+  <div>
+    <h1>About</h1>
+    <p>A website, in your browser! How novel!
+    <p><i>hakase.org</i> is designed and maintained by <a
+        href="mailto:queue@lavabit.com">queue</a>. You can stare at this
+      website's source code on <a
+        href="https://github.com/qqueue/hakase.org">Github</a> if you want.
+  </div>
+</section>
+
+<a id="return" href="#"></a>
 
 <canvas id="hakase" height="119">hakase.org</canvas>
 
@@ -247,3 +400,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 })();
 </script>
+
+</body>
+</html>
