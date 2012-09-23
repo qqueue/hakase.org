@@ -41,57 +41,6 @@
 
 <h1 id="title">hakase.org</h1>
 
-<div id="assets" hidden>
-  <div id="wleft">
-    <img src="walk/left/0.png"/>
-    <img src="walk/left/1.png"/>
-    <img src="walk/left/2.png"/>
-    <img src="walk/left/3.png"/>
-    <img src="walk/left/4.png"/>
-  </div>
-  <div id="wright">
-    <img src="walk/right/0.png"/>
-    <img src="walk/right/1.png"/>
-    <img src="walk/right/2.png"/>
-    <img src="walk/right/3.png"/>
-    <img src="walk/right/4.png"/>
-  </div>
-  <div id="tleft">
-    <img src="turn/left/0.png"/>
-    <img src="turn/left/1.png"/>
-    <img src="turn/left/2.png"/>
-    <img src="turn/left/3.png"/>
-    <img src="turn/left/4.png"/>
-    <img src="turn/left/5.png"/>
-    <img src="turn/left/6.png"/>
-    <img src="turn/left/7.png"/>
-    <img src="turn/left/8.png"/>
-    <img src="turn/left/9.png"/>
-    <img src="turn/left/10.png"/>
-    <img src="turn/left/11.png"/>
-    <img src="turn/left/12.png"/>
-    <img src="turn/left/13.png"/>
-  </div>
-  <div id="tright">
-    <img src="turn/right/0.png"/>
-    <img src="turn/right/1.png"/>
-    <img src="turn/right/2.png"/>
-    <img src="turn/right/3.png"/>
-    <img src="turn/right/4.png"/>
-    <img src="turn/right/5.png"/>
-    <img src="turn/right/6.png"/>
-    <img src="turn/right/7.png"/>
-    <img src="turn/right/8.png"/>
-    <img src="turn/right/9.png"/>
-    <img src="turn/right/10.png"/>
-    <img src="turn/right/11.png"/>
-    <img src="turn/right/12.png"/>
-    <img src="turn/right/13.png"/>
-    <img src="turn/right/14.png"/>
-    <img src="turn/right/15.png"/>
-  </div>
-</div>
-
 <canvas id="hakase" height="119">hakase.org</canvas>
 
 <script>
@@ -147,11 +96,6 @@ if (typeof document.hidden !== "undefined") {
   })();
 }
 
-// utility to get the asset's children as a regualr array of elements
-function images(id) {
-  return Array.prototype.slice.call(document.getElementById(id).children);
-}
-
 // The parts of the animation overlap slightly, so this is the true width
 // to shift the container by when moving
 var TURN_WIDTH_LEFT = 55,
@@ -163,19 +107,73 @@ var TURN_WIDTH_LEFT = 55,
       right: [27, 32, 19, 22, 25]
     };
 
-window.addEventListener('load', function () {
+document.addEventListener('DOMContentLoaded', function () {
 
   var hakase = document.getElementById('hakase'),
       ctx = hakase.getContext('2d'),
-      // swapping out the DOM img elements creates artifacts that don't
-      // appear when just redrawing to the same canvas. Weird.
-      turn = {
-        left: images('tleft'),
-        right: images('tright')
+
+      // start animation after all the images load
+      total_assets = 5 + 5 + 14 + 16,
+      onload = function () {
+        if (--total_assets == 0) { tick(); }
+      },
+      load = function (src) {
+        var img = new Image;
+        img.src = src;
+        img.onload = onload;
+        return img;
       },
       walk = {
-        left: images('wleft'),
-        right: images('wright')
+        left: [
+          "walk/left/0.png",
+          "walk/left/1.png",
+          "walk/left/2.png",
+          "walk/left/3.png",
+          "walk/left/4.png"
+        ].map(load),
+        right: [
+          "walk/right/0.png",
+          "walk/right/1.png",
+          "walk/right/2.png",
+          "walk/right/3.png",
+          "walk/right/4.png"
+        ].map(load)
+      },
+      turn = {
+        left: [
+          "turn/left/0.png",
+          "turn/left/1.png",
+          "turn/left/2.png",
+          "turn/left/3.png",
+          "turn/left/4.png",
+          "turn/left/5.png",
+          "turn/left/6.png",
+          "turn/left/7.png",
+          "turn/left/8.png",
+          "turn/left/9.png",
+          "turn/left/10.png",
+          "turn/left/11.png",
+          "turn/left/12.png",
+          "turn/left/13.png"
+        ].map(load),
+        right: [
+          "turn/right/0.png",
+          "turn/right/1.png",
+          "turn/right/2.png",
+          "turn/right/3.png",
+          "turn/right/4.png",
+          "turn/right/5.png",
+          "turn/right/6.png",
+          "turn/right/7.png",
+          "turn/right/8.png",
+          "turn/right/9.png",
+          "turn/right/10.png",
+          "turn/right/11.png",
+          "turn/right/12.png",
+          "turn/right/13.png",
+          "turn/right/14.png",
+          "turn/right/15.png"
+        ].map(load)
       },
 
       x         = -250, // cutely walk into the screen from stage left
@@ -195,10 +193,8 @@ window.addEventListener('load', function () {
         ctx.drawImage(anim[frame], x, 119 - anim[frame].height);
       };
 
-  draw();
-
   // animation loop
-  setTimeout(function tick () {
+  function tick () {
     ++frame;
 
     if (walking) {
@@ -246,8 +242,7 @@ window.addEventListener('load', function () {
     } else {
       setTimeout(tick, 120);
     }
-  }, 120);
-
+  }
 });
 })();
 </script>
