@@ -44,6 +44,25 @@
     height: 150px;
   }
 
+  /* the containing nav element is actually a fairly extensive hack to get the
+  bottom-right counter-rounded corner to display _without_ making a scrollbar
+  on the body, or having to set overflow-hidden on the html element itself,
+  which prevents scrolling.  By having the nav containing element set to 100%
+  of the page size, its own overflow: hidden can contain the tiny bottom-right
+  #nav:after piece, giving us the effect we desire. so. cool.*/
+  nav {
+    margin: 0;
+    padding: 0;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+  }
+
   #nav {
     margin: 0;
     padding: 0 5px 0 5px;
@@ -58,6 +77,38 @@
     text-align: right;
 
     z-index: 11;
+  }
+
+  #nav:before {
+    content: "";
+
+    border-color: #222222;
+    border-style: solid;
+    border-top-right-radius: 10px;
+    border-width: 5px 5px 0 0;
+
+    height: 5px;
+    width: 5px;
+
+    position: absolute;
+    left: -5px;
+    top: -5px;
+  }
+
+  #nav:after {
+    content: "";
+
+    border-color: #222222;
+    border-style: solid;
+    border-top-right-radius: 10px;
+    border-width: 5px 5px 0 0;
+
+    height: 5px;
+    width: 5px;
+
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
   }
 
   #nav li {
@@ -164,9 +215,13 @@
 
 <h1 id="title">hakase.org</h1>
 
-<ul id="nav">
-  <li><a href="#news">News</a></li><li><a href="#projects">Projects</a></li><li><a href="#about">About</a></li>
-</ul>
+<nav>
+  <ul id="nav"> <!-- see note in CSS about why there's a container -->
+    <li><a href="#news">News
+    </a></li><li><a href="#projects">Projects
+    </a></li><li><a href="#about">About</a></li>
+  </ul> <!-- ^ nonstandard linebreaks prevent whitespace between elements -->
+</nav>
 
 <section id="news">
   <div>
