@@ -257,7 +257,7 @@ function debounce(time, fn) {
     var ctx = this, args = arguments;
     clearTimeout(timeout);
     timeout = setTimeout(function () {
-      fn.apply(this, args);
+      fn.apply(ctx, args);
     }, time);
   };
 }
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // start animation after all the images load
       total_assets = 5 + 5 + 14 + 16,
       onload = function () {
-        if (--total_assets == 0) { tick(); }
+        if (--total_assets === 0) { tick(); }
       },
       load = function (src) {
         var img = new Image;
