@@ -310,12 +310,6 @@ document.addEventListener('DOMContentLoaded', function () {
       // start animation after all the images load
     , total_assets = 5 + 5 + 14 + 16
     , onload = function () { if (--total_assets === 0) { tick() } }
-    , load = function (src) {
-        var img = new Image
-        img.src = src
-        img.onload = onload
-        return img
-      }
     // aggressive compression of asset loading
     , assets = function (path, nl, nr) {
         var l = [], r = [], i
