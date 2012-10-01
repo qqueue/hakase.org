@@ -246,211 +246,168 @@
 
 <script>
 (function () {
-"use strict";
+"use strict"
 
 // stretch title stuff
 // adapted from https://github.com/davatron5000/FitText.js
 
 function debounce(time, fn) {
-  var timeout;
+  var timeout
   return function () {
-    var ctx = this, args = arguments;
-    clearTimeout(timeout);
+    var ctx = this, args = arguments
+    clearTimeout(timeout)
     timeout = setTimeout(function () {
-      fn.apply(ctx, args);
-    }, time);
-  };
+      fn.apply(ctx, args)
+    }, time)
+  }
 }
 
 // behold my carefully tuned constants
 function resize() {
-  var h1 = document.getElementById('title');
-  h1.style.fontSize = (window.innerWidth / 7) + 'px';
-  h1.style.height = (window.innerWidth / 5) + 'px';
+  var h1 = document.getElementById('title')
+  h1.style.fontSize = (window.innerWidth / 7) + 'px'
+  h1.style.height = (window.innerWidth / 5) + 'px'
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  resize();
-  window.addEventListener('resize', debounce(300, resize));
+  resize()
+  window.addEventListener('resize', debounce(300, resize))
 });
 
 // page visibility API polyfill
-if (typeof document.hidden !== "undefined") {
+if (!('hidden' in document)) {
   (function () {
-    var hidden, visibilityChange;
-    if (typeof document.mozHidden !== "undefined") {
-      hidden = "mozHidden";
-      visibilityChange = "mozvisibilitychange";
-    } else if (typeof document.msHidden !== "undefined") {
-      hidden = "msHidden";
-      visibilityChange = "msvisibilitychange";
-    } else if (typeof document.webkitHidden !== "undefined") {
-      hidden = "webkitHidden";
-      visibilityChange = "webkitvisibilitychange";
-    }
+    var prefix           = 'mozHidden' in document    ? 'moz'
+                         : 'msHidden' in document     ? 'ms'
+                         : 'webkitHidden' in document ? 'webkit'
+                         : ''
+      , hidden           = prefix + 'Hidden'
+      , visibilityChange = prefix + 'visibilitychange'
 
-    // set the real document.hidden property, and dispatch the polyfilled event
+    // set the real property, and dispatch the polyfilled event
     document.addEventListener(visibilityChange, function () {
-      document.hidden = document[hidden];
-      document.dispatchEvent(new CustomEvent("visibilitychange"));
-    });
-  })();
+      document.hidden = document[hidden]
+      document.dispatchEvent(new CustomEvent("visibilitychange"))
+    })
+  }())
 }
 
 // The parts of the animation overlap slightly, so this is the true width
 // to shift the container by when moving
-var TURN_WIDTH_LEFT = 55,
-    TURN_WIDTH_RIGHT = 170,
-    WALK_LEFT_START = 266,
-    WALK_RIGHT_START = 150,
-    WALK_WIDTH = {
-      left: [-27, -32, -19, -22, -25],
-      right: [27, 32, 19, 22, 25]
-    };
+var TURN_WIDTH_LEFT = 55
+  , TURN_WIDTH_RIGHT = 170
+  , WALK_LEFT_START = 266
+  , WALK_RIGHT_START = 150
+  , WALK_WIDTH = { left: [-27, -32, -19, -22, -25]
+                 , right: [27, 32, 19, 22, 25]
+                 }
 
 document.addEventListener('DOMContentLoaded', function () {
 
-  var hakase = document.getElementById('hakase'),
-      ctx = hakase.getContext('2d'),
+  var hakase = document.getElementById('hakase')
+    , ctx    = hakase.getContext('2d')
 
       // start animation after all the images load
-      total_assets = 5 + 5 + 14 + 16,
-      onload = function () {
-        if (--total_assets === 0) { tick(); }
-      },
-      load = function (src) {
-        var img = new Image;
-        img.src = src;
-        img.onload = onload;
-        return img;
-      },
-      walk = {
-        left: [
-          "walk/left/0.png",
-          "walk/left/1.png",
-          "walk/left/2.png",
-          "walk/left/3.png",
-          "walk/left/4.png"
-        ].map(load),
-        right: [
-          "walk/right/0.png",
-          "walk/right/1.png",
-          "walk/right/2.png",
-          "walk/right/3.png",
-          "walk/right/4.png"
-        ].map(load)
-      },
-      turn = {
-        left: [
-          "turn/left/0.png",
-          "turn/left/1.png",
-          "turn/left/2.png",
-          "turn/left/3.png",
-          "turn/left/4.png",
-          "turn/left/5.png",
-          "turn/left/6.png",
-          "turn/left/7.png",
-          "turn/left/8.png",
-          "turn/left/9.png",
-          "turn/left/10.png",
-          "turn/left/11.png",
-          "turn/left/12.png",
-          "turn/left/13.png"
-        ].map(load),
-        right: [
-          "turn/right/0.png",
-          "turn/right/1.png",
-          "turn/right/2.png",
-          "turn/right/3.png",
-          "turn/right/4.png",
-          "turn/right/5.png",
-          "turn/right/6.png",
-          "turn/right/7.png",
-          "turn/right/8.png",
-          "turn/right/9.png",
-          "turn/right/10.png",
-          "turn/right/11.png",
-          "turn/right/12.png",
-          "turn/right/13.png",
-          "turn/right/14.png",
-          "turn/right/15.png"
-        ].map(load)
-      },
+    , total_assets = 5 + 5 + 14 + 16
+    , onload = function () { if (--total_assets === 0) { tick() } }
+    , load = function (src) {
+        var img = new Image
+        img.src = src
+        img.onload = onload
+        return img
+      }
+    // aggressive compression of asset loading
+    , assets = function (path, nl, nr) {
+        var l = [], r = [], i
+        for (i = 0; i < nl; ++i) {
+          l[i] = new Image
+          l[i].src = path + '/left/' + i + '.png'
+          l[i].onload = onload
+        }
+        for (i = 0; i < nr; ++i) {
+          r[i] = new Image
+          r[i].src = path + '/right/' + i + '.png'
+          r[i].onload = onload
+        }
+        return { left: l, right: r }
+      }
+    , walk      = assets("walk", 5, 5)
+    , turn      = assets("turn", 14, 16)
+    , x         = -250 // cutely walk into the screen from stage left
+    , walking   = true
+    , direction = "right"
+    , anim      = walk[direction]
+    , frames    = anim.length
+    , frame     = 0
 
-      x         = -250, // cutely walk into the screen from stage left
-      walking   = true,
-      direction = "right",
-      anim      = walk[direction],
-      frames    = anim.length,
-      frame     = 0,
+  function draw() {
+    // resetting the canvas width has the added effect of clearing it
+    hakase.width = document.documentElement.clientWidth
 
-      draw = function () {
-        // resetting the canvas width has the added effect of clearing it
-        hakase.width = window.innerWidth;
-
-        // not all the images are the same height, and it's a goddamn hassle to
-        // either figure out how to script them to the same height, or to do it
-        // manually with GIMP's god-awful interface
-        ctx.drawImage(anim[frame], x, 119 - anim[frame].height);
-      };
+    // not all the images are the same height, and it's a goddamn hassle to
+    // either figure out how to script them to the same height, or to do it
+    // manually with GIMP's god-awful interface
+    ctx.drawImage(anim[frame], x, 119 - anim[frame].height)
+  }
 
   // animation loop
-  function tick () {
-    ++frame;
+  function tick() {
+    var width = document.documentElement.clientWidth // minus scrollbars
+
+    ++frame
 
     if (walking) {
-      frame = frame % frames;
+      frame = frame % frames
 
-      x += WALK_WIDTH[direction][frame];
+      x += WALK_WIDTH[direction][frame]
 
-      if ( direction === "right" && (window.innerWidth - x) < TURN_WIDTH_RIGHT ||
+      if ( direction === "right" && (width - x) < TURN_WIDTH_RIGHT ||
            direction === "left" && x < TURN_WIDTH_LEFT ) {
 
-        walking = false;
+        walking = false
         if (direction === "right") {
-          direction = "left";
-          x = window.innerWidth - 266; // width of actual turning anim
+          direction = "left"
+          x = width - 266 // width of actual turning anim
         } else { // left
-          direction = "right";
-          x = 0;
+          direction = "right"
+          x = 0
         }
 
-        anim = turn[direction];
-        frames = anim.length;
-        frame = 0;
+        anim = turn[direction]
+        frames = anim.length
+        frame = 0
       }
     } else { // turning
       if (frame >= frames) {
-        walking = true;
-        anim = walk[direction];
-        frames = anim.length;
-        frame = 0;
+        walking = true
+        anim = walk[direction]
+        frames = anim.length
+        frame = 0
 
-        x = direction === "right" ?
-          WALK_RIGHT_START :
-          window.innerWidth - WALK_LEFT_START;
+        x = direction === "right" ? WALK_RIGHT_START : width - WALK_LEFT_START
       }
     }
 
-    draw();
+    draw()
 
     if (document.hidden) {
       // continue once we're no longer hidden
-      document.addEventListener("visibilitychange", function restart () {
-        setTimeout(tick, 120);
-        document.removeEventListener("visibilitychange", restart);
-      });
+      document.addEventListener("visibilitychange", function restart() {
+        setTimeout(tick, 120)
+        document.removeEventListener("visibilitychange", restart)
+      })
     } else {
-      setTimeout(tick, 120);
+      setTimeout(tick, 120)
     }
   }
-});
-})();
+})
+}())
 
 // botnet
-var _gaq = [['_setAccount', 'UA-35139455-1'],
-            ['_setDomainName', 'hakase.org'],
-            ['_trackPageview']];
+var _gaq = [ ['_setAccount', 'UA-35139455-1']
+           , ['_setDomainName', 'hakase.org']
+           , ['_trackPageview']
+           ]
 </script>
 <script async src=//www.google-analytics.com/ga.js></script>
 
