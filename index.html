@@ -7,9 +7,14 @@
 
 <link rel=icon href=favicon.ico>
 
-<link href="http://fonts.googleapis.com/css?family=Droid+Serif:400,400italic,700" rel=stylesheet>
-
 <style>
+  @font-face {
+    font-family: 'Droid Serif';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Droid Serif'), local('DroidSerif'), url(https://hakase.org/droid.woff2) format('woff2');
+  }
+
   html {
     min-height: 100%;
     background: url(bg.png), -moz-radial-gradient(center, ellipse cover, #fafafa 70%, #c6c6c6 100%); /* FF3.6+ */
@@ -406,12 +411,5 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 })
 }())
-
-// botnet
-var _gaq = [ ['_setAccount', 'UA-35139455-1']
-           , ['_setDomainName', 'hakase.org']
-           , ['_trackPageview']
-           ]
 </script>
-<script async src=//www.google-analytics.com/ga.js></script>
 
